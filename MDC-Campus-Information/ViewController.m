@@ -11,6 +11,7 @@
 @interface ViewController ()
 {
     int pageNumber;
+    
 }
 @property (weak, nonatomic) IBOutlet UIImageView *imageGallery;
 @property (weak, nonatomic) IBOutlet UITextView *campusDescriptions;
@@ -29,16 +30,34 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.prevButtonOutlet.enabled = NO;//Previous button disabled initially
+    self.automaticallyAdjustsScrollViewInsets = NO;
     pageNumber = 0;
-    [self displayText];//Display opening page
+    [self displayText];
+    [self displayImage];
+    self.prevButtonOutlet.enabled = NO;//Previous button disabled initially}
+    self.campusDescriptions.hidden = NO;
+    [[UIDevice currentDevice]beginGeneratingDeviceOrientationNotifications];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationChanged:)
+        name:UIDeviceOrientationDidChangeNotification
+        object:[UIDevice currentDevice]];
+    
+    
+}
+-(void)viewDidLayoutSubviews
+{
+    [self displayText];
     [self displayImage];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
+}
+-(void)orientationChanged:(NSNotification*) note
+{
+    [self displayText];
+    [self displayImage];
 }
 - (IBAction)previousButton:(id)sender {
     --pageNumber;
@@ -54,8 +73,10 @@
     [self displayImage];
     
 }
+
 -(void) displayText
 {
+    
     NSString *textToDisplay = [[NSString alloc]init];
     NSMutableString *pageURL =[[NSMutableString alloc]init];
     [pageURL appendString:@"https://www.mdc.edu/"];//Mutable string allows simple URL concatenation.
@@ -115,7 +136,8 @@
     }
     
     self.campusTitleLabel.text = campusTitle;
-    self.campusDescriptions.text = textToDisplay;//Set appropriate campus information
+    //self.campusDescriptions.text = textToDisplay;//Set appropriate campus information
+    [self.campusDescriptions setText:textToDisplay];
     //Create attributed text with link to campus homepage
     NSURL *linkURL =[NSURL URLWithString:pageURL];
     NSMutableAttributedString *clickhereLink = [[NSMutableAttributedString alloc]initWithString:@"Click Here For More Information"];
